@@ -28,8 +28,8 @@ Notifications are transient, replace one another, and are explicitly closed afte
 Records until you press a key: `1` discards and restarts the recording, `0` stops and transcribes. The transcript is printed, copied to the clipboard, backed up as above, and the whisper.cpp processing time is displayed.
 
 ## Requirements
-
-- **OS:** Ubuntu with a **Wayland** session and **PipeWire** (the default on recent Ubuntu releases). Other distributions or X11 sessions are not supported or tested.
+***Other distributions or X11 sessions are not tested.***
+- **OS:** Ubuntu with a **Wayland** session and **PipeWire** (the default on recent Ubuntu releases).
 - **Packages:**
   ```bash
   sudo apt install pipewire-bin wl-clipboard libnotify-bin bc
