@@ -1,4 +1,4 @@
-# S2TByTheBoss
+# S2T
 
 Offline, local speech-to-text for Ubuntu (Wayland). Record your voice, transcribe it with [whisper.cpp](https://github.com/ggerganov/whisper.cpp), and get the result on your clipboard — no cloud services, no API keys, no audio leaving your machine.
 
@@ -49,8 +49,8 @@ Records until you press a key: `1` discards and restarts the recording, `0` stop
 ## Installation
 
 ```bash
-git clone https://github.com/<your-user>/S2TByTheBoss.git
-cd S2TByTheBoss
+git clone https://github.com/cpenuela19/S2T.git
+cd S2T
 chmod +x speak2text.sh speak2text-hotkey.sh
 ```
 
@@ -59,7 +59,7 @@ chmod +x speak2text.sh speak2text-hotkey.sh
 1. Open **Settings → Keyboard → Keyboard Shortcuts → Custom Shortcuts**.
 2. Add a shortcut with the command:
    ```
-   /absolute/path/to/S2TByTheBoss/speak2text-hotkey.sh
+   /absolute/path/to/S2T/speak2text-hotkey.sh
    ```
 3. Assign your preferred key combination.
 
