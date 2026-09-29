@@ -62,6 +62,7 @@ chmod +x speak2text.sh speak2text-hotkey.sh
    /absolute/path/to/S2T/speak2text-hotkey.sh
    ```
 3. Assign your preferred key combination.
+4. Log out and log back in *(remember to save your work)*.
 
 Press once to record, press again to transcribe. Paste anywhere.
 
