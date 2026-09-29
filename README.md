@@ -15,11 +15,11 @@ The project ships two entry points:
 
 The script is a stateless toggle whose state is kept in a PID file (`/tmp/speak2text-hotkey.pid`).
 
-1. **First invocation** — no live process is referenced by the PID file, so the script starts `pw-record` (PipeWire) in the background, capturing 16 kHz, mono, signed 16-bit PCM (the format Whisper expects), stores its PID, and shows a desktop notification.
-2. **Second invocation** — the PID file points to a live process, so the script terminates the recorder, runs `whisper-cli` with automatic language detection (`-l auto`), and writes the transcript to a text file.
+1. **First invocation** — no live process is referenced by the PID file, so the script starts `pw-record` (PipeWire) in its own session (`setsid`), so it survives the script exiting and any cleanup signals sent to the script's process group. It captures 16 kHz, mono, signed 16-bit PCM (the format Whisper expects), stores its PID, and shows a desktop notification.
+2. **Second invocation** — the PID file points to a live process, so the script terminates the recorder, shows a persistent (critical urgency) `Transcribing...` notification, runs `whisper-cli` with automatic language detection (`-l auto`), and writes the transcript to a text file. If no transcript is produced, the notification changes to `Transcription failed` and nothing is copied.
 3. The transcript is copied to both the Wayland **clipboard** and **primary selection** (`wl-copy`), so it can be pasted with `Ctrl+V` or a middle click.
 4. The last two transcripts are rotated into a backup directory as `temporal_1.txt` (latest) and `temporal_2.txt` (previous).
-5. The temporary audio file is deleted and a final notification is shown.
+5. The temporary audio file is deleted and the same notification is replaced with `Transcript ready ✅`. GNOME Shell may still dismiss critical notifications on its own after a few seconds; that is a shell limitation.
 
 Notifications are transient, replace one another, and are explicitly closed after ~3 seconds via D-Bus. This works around a GNOME Shell behavior where a banner can remain frozen on screen until the next notification arrives.
 
@@ -76,7 +76,9 @@ Settings are shell variables at the top of each script:
 | `BACKUP_DIR` | `/home/tito/Music/Aux/S2TByTheBoss` | Where the last two transcripts are stored. **Change this to a path valid for your user.** |
 | `-l auto` | auto-detect | Replace with a language code (e.g. `-l en`, `-l es`) to force a language and speed up inference. |
 
-Temporary files live in `/tmp` and are removed after each run. Hotkey-mode diagnostics are appended to `/tmp/speak2text-hotkey.log`.
+The hotkey script prepends `~/.local/bin` to `PATH` itself, because GNOME custom shortcuts do not load `~/.profile` and `whisper-cli` would otherwise not be found. If you install `whisper-cli` elsewhere, adjust that line.
+
+Temporary files live in `/tmp` and are removed after each run. Hotkey-mode diagnostics (including whisper output from the last run) are written to `/tmp/speak2text-hotkey.log`.
 
 ## Limitations
 

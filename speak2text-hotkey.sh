@@ -1,4 +1,6 @@
 #!/bin/bash
+# GNOME custom shortcuts don't load ~/.profile, so ~/.local/bin (whisper-cli) is missing from PATH.
+export PATH="$HOME/.local/bin:$PATH"
 PIDFILE="/tmp/speak2text-hotkey.pid"
 AUDIO="/tmp/speak2text-hotkey_recording.wav"
 MODEL="$HOME/.local/share/whisper-cpp/models/ggml-base.bin"
@@ -34,9 +36,17 @@ if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE" 2>/dev/null)" 2>/dev/null; the
     wait "$PID" 2>/dev/null
     rm -f "$PIDFILE"
 
-    whisper-cli -m "$MODEL" -f "$AUDIO" -otxt -of "$OUTFILE" -l auto > /dev/null 2>&1
+    NOTIF_ID=$(notify-send -u critical -p "Speak2Text" "Transcribing..." 2>/dev/null)
 
     TRANSCRIPT="${OUTFILE}.txt"
+    rm -f "$TRANSCRIPT"
+
+    whisper-cli -m "$MODEL" -f "$AUDIO" -otxt -of "$OUTFILE" -l auto > "$LOGFILE" 2>&1
+
+    if [ ! -s "$TRANSCRIPT" ]; then
+        notify-send -r "${NOTIF_ID:-0}" "Speak2Text" "Transcription failed ❌ See $LOGFILE"
+        exit 1
+    fi
 
     if command -v wl-copy >/dev/null 2>&1; then
         wl-copy < "$TRANSCRIPT"
@@ -55,13 +65,14 @@ if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE" 2>/dev/null)" 2>/dev/null; the
 
     rm -f "$AUDIO"
 
-    notify "Speak2Text" "Transcript ready and copied to clipboard."
+    notify-send -r "${NOTIF_ID:-0}" "Speak2Text" "Transcript ready ✅"
 else
     rm -f "$PIDFILE" "$AUDIO"
 
-    pw-record --rate 16000 --channels 1 --format s16 "$AUDIO" > /dev/null 2>&1 &
-    echo $! > "$PIDFILE"
-    disown
+    # Own session so GNOME cleanup signals to the script's process group can't kill it.
+    # setsid -f forks, so $! would not be pw-record's PID: write it from inside and exec.
+    setsid -f bash -c 'echo $$ > "$1"; exec pw-record --rate 16000 --channels 1 --format s16 "$2"' \
+        _ "$PIDFILE" "$AUDIO" > /dev/null 2>&1 &
 
     notify "Speak2Text" "Recording... press the shortcut again to stop."
 fi
