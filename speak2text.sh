@@ -1,6 +1,6 @@
 #!/bin/bash
 AUDIO="/tmp/whisper_recording.wav"
-MODEL="$HOME/.local/share/whisper-cpp/models/ggml-base.bin"
+MODEL="$HOME/.local/share/whisper-cpp/models/ggml-medium-q5_0.bin"
 OUTFILE="/tmp/speak2text_transcript"
 
 while true; do
@@ -23,7 +23,7 @@ while true; do
             ;;
         0)
             echo "📝 Transcribing..."
-            TOTAL_MS=$(whisper-cli -m "$MODEL" -f "$AUDIO" -otxt -of "$OUTFILE" -l auto 2>&1 | grep "total time" | awk '{print $(NF-1)}')
+            TOTAL_MS=$(whisper-cli -t 8 -m "$MODEL" -f "$AUDIO" -otxt -of "$OUTFILE" -l auto 2>&1 | grep "total time" | awk '{print $(NF-1)}')
             SECONDS_TOTAL=$(echo "$TOTAL_MS / 1000" | bc)
 
             TRANSCRIPT="${OUTFILE}.txt"

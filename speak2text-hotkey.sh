@@ -3,7 +3,7 @@
 export PATH="$HOME/.local/bin:$PATH"
 PIDFILE="/tmp/speak2text-hotkey.pid"
 AUDIO="/tmp/speak2text-hotkey_recording.wav"
-MODEL="$HOME/.local/share/whisper-cpp/models/ggml-base.bin"
+MODEL="$HOME/.local/share/whisper-cpp/models/ggml-medium-q5_0.bin"
 OUTFILE="/tmp/speak2text-hotkey_transcript"
 BACKUP_DIR="/home/tito/Music/Aux/S2TByTheBoss"
 LOGFILE="/tmp/speak2text-hotkey.log"
@@ -41,7 +41,7 @@ if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE" 2>/dev/null)" 2>/dev/null; the
     TRANSCRIPT="${OUTFILE}.txt"
     rm -f "$TRANSCRIPT"
 
-    whisper-cli -m "$MODEL" -f "$AUDIO" -otxt -of "$OUTFILE" -l auto > "$LOGFILE" 2>&1
+    whisper-cli -t 8 -m "$MODEL" -f "$AUDIO" -otxt -of "$OUTFILE" -l auto > "$LOGFILE" 2>&1
 
     if [ ! -s "$TRANSCRIPT" ]; then
         notify-send -r "${NOTIF_ID:-0}" "Speak2Text" "Transcription failed ❌ See $LOGFILE"
